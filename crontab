@@ -1,0 +1,11 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Meccs adatok – minden vasárnap hajnal 1:00
+0 1 * * 0 root cd /app && /usr/local/bin/python main.py --matches >> /var/log/cron.log 2>&1
+
+# Tabella adatok – minden vasárnap hajnal 2:00
+0 2 * * 0 root cd /app && /usr/local/bin/python main.py --standings >> /var/log/cron.log 2>&1
+
+# Cikkek – minden második nap hajnal 3:00
+0 3 */2 * * root cd /app && /usr/local/bin/python main.py --articles >> /var/log/cron.log 2>&1

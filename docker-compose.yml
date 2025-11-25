@@ -1,0 +1,58 @@
+services:
+  # PostgreSQL adatbázis
+  postgres:
+    image: postgres:15
+    container_name: mlsz-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mlsz_db
+      POSTGRES_USER: mlsz_user
+      POSTGRES_PASSWORD: mlsz_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mlsz-network
+
+  # Ollama LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mlsz-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    runtime: nvidia
+    environment:
+      - OLLAMA_GPU_LAYERS=35
+      - OLLAMA_FLASH_ATTENTION=1
+      - CUDA_VISIBLE_DEVICES=0
+    networks:
+      - mlsz-network
+
+  # MLSZ Scraper
+  mlsz-scraper:
+    build: .
+    container_name: mlsz-scraper
+    restart: no
+    depends_on:
+      - postgres
+      - ollama
+    environment:
+      - DATABASE_URL=postgresql://mlsz_user:mlsz_password@postgres:5432/mlsz_db
+      - OLLAMA_URL=http://ollama:11434/api/generate
+      - RUN_INITIAL_SCRAPERS=false
+    volumes:
+      - ./logs:/var/log
+    networks:
+      - mlsz-network
+
+volumes:
+  postgres_data:
+  ollama_data:
+
+networks:
+  mlsz-network:
+    driver: bridge
