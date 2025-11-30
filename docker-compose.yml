@@ -43,7 +43,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://mlsz_user:mlsz_password@postgres:5432/mlsz_db
       - OLLAMA_URL=http://ollama:11434/api/generate
-      - RUN_INITIAL_SCRAPERS=false
+      - RUN_INITIAL_SCRAPERS=true
     volumes:
       - ./logs:/var/log
     networks:
